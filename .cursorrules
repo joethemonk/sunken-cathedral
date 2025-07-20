@@ -1,0 +1,92 @@
+# Project: The Sunken Cathedral - Castle Adventure Style Game
+
+## Development Philosophy
+- Write clean, modular, testable code following Python best practices
+- Use type hints for all function signatures
+- Include docstrings for all classes and public methods
+- Follow PEP 8 style guidelines
+- Create small, focused commits with clear messages
+- Write tests alongside implementation (TDD when possible)
+
+## Architecture Guidelines
+- Use clear separation of concerns (MVC-like pattern)
+- Keep game logic separate from display logic
+- Use dependency injection rather than hard-coded dependencies
+- Implement proper error handling and logging
+- Design for extensibility (easy to add new rooms, items, commands)
+
+## Code Structure
+sunken_cathedral/
+├── src/
+│   ├── main.py              # Entry point
+│   ├── engine/              # Core game engine
+│   │   ├── __init__.py
+│   │   ├── display.py       # Rendering and UI
+│   │   ├── world.py         # World and room management
+│   │   ├── player.py        # Player state and inventory
+│   │   ├── parser.py        # Command parsing
+│   │   └── game_state.py    # Save/load functionality
+│   ├── content/             # Game content (rooms, items, text)
+│   │   ├── __init__.py
+│   │   ├── acts/           # Act-specific content
+│   │   └── items.py        # Item definitions
+│   └── utils/              # Utility functions
+├── tests/                   # Unit and integration tests
+├── docs/                    # Documentation
+├── assets/                  # Game assets (if any)
+├── requirements.txt         # Python dependencies
+├── requirements-dev.txt     # Development dependencies
+├── README.md               # Project documentation
+├── .gitignore              # Git ignore file
+├── .cursorrules            # This file
+└── pyproject.toml          # Project configuration
+
+## Implementation Standards
+1. Every new feature should include:
+   - Unit tests in the tests/ directory
+   - Updated documentation
+   - Type hints
+   - Error handling
+
+2. Use meaningful variable names:
+   - `player_inventory` not `inv`
+   - `current_room_id` not `room`
+   - `lantern_oil_percentage` not `oil`
+
+3. Constants should be in UPPER_CASE and defined in a constants.py file
+
+4. Use Enum classes for game states, directions, and item types
+
+5. Implement logging using Python's logging module for debugging
+
+## Git Workflow
+- Use feature branches for new development
+- Branch naming: feature/description or fix/description
+- Commit message format: "type: description" (e.g., "feat: add parser system")
+- Types: feat, fix, docs, style, refactor, test, chore
+
+## Testing Requirements
+- Minimum 80% code coverage
+- Test file naming: test_[module_name].py
+- Use pytest for testing framework
+- Mock external dependencies (like keyboard input)
+
+## Performance Considerations
+- Profile any real-time systems (like movement)
+- Keep frame rate stable for ASCII animation
+- Efficient screen updates (only redraw changed areas)
+
+## Color Palette (ANSI)
+- Player: Yellow (33)
+- Water: Blue (34)
+- Walls: White (37) or Gray (90)
+- Items: Cyan (36)
+- Spirits: Magenta (35)
+- Sacred/Fonts: Green (32)
+- Danger/Warning: Red (31)
+
+## Remember
+- This is both a learning project and a portfolio piece
+- Code quality matters as much as functionality
+- Document decisions and trade-offs in code comments
+- Make it something you'd be proud to show in an interview
