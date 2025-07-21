@@ -1,11 +1,11 @@
 {
   "player_position": [
-    8,
-    14
+    2,
+    43
   ],
-  "lantern_oil": 98.47499999999931,
+  "lantern_oil": 97.99499999999954,
   "inventory": [
-    null,
+    "Worn Scroll",
     "Prayer Geode",
     "Silver Geode",
     null
@@ -13,7 +13,7 @@
   "current_geode": "Prayer Geode",
   "current_room_id": "entrance",
   "difficulty": "story",
-  "total_moves": 159,
-  "save_timestamp": 1753106956.6048698,
+  "total_moves": 104,
+  "save_timestamp": 1753114947.347954,
   "game_version": "1.0"
 }

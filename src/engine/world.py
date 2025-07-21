@@ -296,8 +296,8 @@ def create_test_world() -> World:
         "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓",
         "▓                                           ▓",
         "▓                                           ▓",
-        "▓                                           ▓",
-        "▓                                           ▓",
+        "▓                                      ",
+        "▓                                      ",
         "▓                                           ▓",
         "▓                                           ▓",
         "▓                                           ▓",
@@ -315,8 +315,38 @@ def create_test_world() -> World:
     ]
     north_hall.set_map(north_hall_map)
     north_hall.add_exit(Direction.SOUTH, "entrance", (5, 14)) # Exit back to entrance
+    north_hall.add_exit(Direction.EAST, "flooded_cloister", (4, 1)) # Exit to new room
     
     world.add_room(north_hall)
+    
+    # Create the Flooded Cloister
+    flooded_cloister = Room(
+        room_id="flooded_cloister",
+        name="The Flooded Cloister",
+        description="A wide, square cloister is half-submerged in murky water. Crumbling archways lead to passages now lost to the depths. A narrow, dry path winds through the center."
+    )
+    
+    flooded_cloister_map = [
+        "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓",
+        "▓≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈▓",
+        "▓≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈▓",
+        " ≈≈≈≈≈                                      ▓",
+        " ≈≈≈≈≈    P      ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈▓",
+        " ≈≈≈≈≈                                      ▓",
+        "▓≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈▓",
+        "▓≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈▓",
+        "▓                                           ▓",
+        "▓      A strange, pulsing plant grows       ▓",
+        "▓      in a patch of damp earth here.       ▓",
+        "▓                                           ▓",
+        "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓"
+    ]
+    
+    flooded_cloister.set_map(flooded_cloister_map)
+    flooded_cloister.add_item((4, 15), "Glimmering Plant") # New interactive item
+    flooded_cloister.add_exit(Direction.WEST, "north_hall", (4, 44)) # Exit back
+    
+    world.add_room(flooded_cloister)
     
     world.set_current_room("entrance")
     
