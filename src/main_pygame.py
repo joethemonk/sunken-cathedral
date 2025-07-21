@@ -645,6 +645,10 @@ class Game:
                 self._show_load_menu()
             elif message == "SHOW_SCROLL_CONTENT":
                 self._show_scroll_content()
+            elif message == "SHOW_ANCIENT_SCROLL_CONTENT":
+                self._show_ancient_scroll_content()
+            elif message == "SHOW_CATHEDRAL_SCROLL_CONTENT":
+                self._show_cathedral_scroll_content()
             else:
                 # For reading/lore messages, display much longer
                 if "You read" in message or "scroll" in message.lower() or len(message) > 200:
@@ -1252,6 +1256,136 @@ class Game:
             title="THE WORN SCROLL",
             title_color=(255, 255, 85),
             text_color=(210, 180, 140)  # Parchment color
+        )
+        
+        paginator = Paginator(self.state.display)
+        result = paginator.show_paged_content(content, auto_continue=True)
+        
+        if result == "QUIT_REQUESTED":
+            self._quit_game()
+    
+    def _show_ancient_scroll_content(self) -> None:
+        """Show ancient scroll content with lore about the old lighthouse keepers."""
+        scroll_text = [
+            "Fragment of the Chronicle of Beacon-Keepers",
+            "From the Archives of the Meridian Chain",
+            "Third Age of the Watchers",
+            "",
+            "Let it be known to all who follow in our sacred duty",
+            "that the art of Flame-Tending is not mere labor,",
+            "but a communion with forces beyond mortal ken.",
+            "",
+            "The Seven Generations before us learned these truths",
+            "through trials of shadow and sorrow. Each beacon",
+            "burns not with common oil, but with essence drawn",
+            "from the Consecrated Fonts—springs that rise from",
+            "ground hallowed by ancient sacrifice.",
+            "",
+            "To tend the flames is to stand guardian at the",
+            "threshold between realms. The light we maintain",
+            "serves not ships upon earthly seas, but souls",
+            "adrift in the ethereal currents that separate",
+            "the living world from the realm of final rest.",
+            "",
+            "In the darkest hours, when the moon wanes and",
+            "the barriers grow thin, the Drowned Sorrows",
+            "rise from the depths. They seek the warmth of",
+            "living souls, drawn by memories of the life",
+            "they once knew but can no longer touch.",
+            "",
+            "A Keeper who carries the blessed flame and speaks",
+            "the words of ancient peace may calm their anguish,",
+            "but approach with caution—for in their desperation,",
+            "they may drain the very light from your lantern.",
+            "",
+            "Remember always: the Prayer Geodes of the old",
+            "faith hold power to soothe the restless dead.",
+            "Seek them in the sacred places, for they are",
+            "your best defense against the sorrow that",
+            "would consume all light.",
+            "",
+            "May your flame never falter,",
+            "May your light guide the lost to peace.",
+            "",
+            "—Master Keeper Aldrich the Steadfast"
+        ]
+        
+        decorated_content = self._create_scroll_decoration(scroll_text)
+        content = create_text_content(
+            decorated_content,
+            title="ANCIENT SCROLL OF THE KEEPERS",
+            title_color=(255, 255, 85),
+            text_color=(180, 160, 120)
+        )
+        
+        paginator = Paginator(self.state.display)
+        result = paginator.show_paged_content(content, auto_continue=True)
+        
+        if result == "QUIT_REQUESTED":
+            self._quit_game()
+    
+    def _show_cathedral_scroll_content(self) -> None:
+        """Show cathedral scroll content with specific lore about the sunken cathedral."""
+        scroll_text = [
+            "Research Notes on the Sunken Cathedral",
+            "By Scholar Miriam Blackwater",
+            "University of Maritime Mysteries",
+            "",
+            "After extensive research into the phenomenon known",
+            "as the 'Sunken Cathedral,' I have compiled these",
+            "findings for future expeditions.",
+            "",
+            "ORIGINS:",
+            "The structure predates all known civilizations in",
+            "this region. Carbon analysis of retrieved stone",
+            "fragments suggests construction over 2,000 years ago.",
+            "Local folklore speaks of a 'Temple of Eternal Tides'",
+            "built by a sea-worshipping culture that vanished",
+            "during a great cataclysm.",
+            "",
+            "THE SINKING:",
+            "Historical records indicate the cathedral stood",
+            "on a coastal promontory until approximately 400",
+            "years ago, when a massive earthquake and subsequent",
+            "tsunami claimed the entire peninsula. The structure",
+            "was thought lost forever until its recent emergence.",
+            "",
+            "SUPERNATURAL PROPERTIES:",
+            "The cathedral's interior maintains breathable air",
+            "despite being submerged. This phenomenon defies",
+            "natural law and suggests powerful enchantments.",
+            "Local fishermen report seeing strange lights within",
+            "its windows during storm seasons.",
+            "",
+            "THE BEACON TOWER:",
+            "Most significant is the spectral blue light that",
+            "burns at the cathedral's highest spire. This beacon",
+            "appears to respond to the presence of those with",
+            "'the Sight'—individuals born with sensitivity to",
+            "spiritual disturbances. The light grows brighter",
+            "when such persons approach.",
+            "",
+            "WARNING TO EXPLORERS:",
+            "Multiple expeditions have attempted to explore",
+            "the cathedral's depths. Few have returned, and",
+            "those who did speak of 'voices in the water'",
+            "and 'shadows that move against the current.'",
+            "Approach only with proper spiritual protection.",
+            "",
+            "The cathedral calls to those it chooses.",
+            "Answer only if you are prepared for what",
+            "you might find in its drowned halls.",
+            "",
+            "—Scholar M. Blackwater",
+            "Final Entry, Expedition Log #47"
+        ]
+        
+        decorated_content = self._create_scroll_decoration(scroll_text)
+        content = create_text_content(
+            decorated_content,
+            title="CATHEDRAL RESEARCH SCROLL",
+            title_color=(255, 255, 85),
+            text_color=(150, 200, 210)
         )
         
         paginator = Paginator(self.state.display)

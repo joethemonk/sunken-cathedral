@@ -211,6 +211,10 @@ def create_test_world() -> World:
     entrance.add_item((10, 10), "Prayer Geode")
     entrance.add_item((6, 30), "Silver Geode")
     
+    # Add additional scrolls for the multiple scroll system
+    entrance.add_item((8, 35), "Ancient Scroll")
+    entrance.add_item((14, 8), "Cathedral Research Scroll")
+    
     # Spirit (S) at position (2, 32)
     entrance.spirits[(2, 32)] = "Weeping Sorrow"
     

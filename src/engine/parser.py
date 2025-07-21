@@ -44,7 +44,7 @@ class Parser:
         # Valid nouns and their synonyms
         self.nouns: Dict[str, List[str]] = {
             'lantern': ['lantern', 'lamp', 'light'],
-            'scroll': ['scroll', 'paper', 'parchment'],
+            'scroll': ['scroll', 'paper', 'parchment', 'worn', 'ancient', 'cathedral', 'research'],
             'geode': ['geode', 'crystal', 'stone'],
             'spirit': ['spirit', 'ghost', 'sorrow'],
             'font': ['font', 'fountain', 'basin'],
@@ -234,13 +234,41 @@ class Parser:
             return CommandResult.INVALID, "Read what?"
         
         if noun == "scroll":
-            if game_state.player.has_item("Worn Scroll"):
-                # Return special marker to trigger full-screen scroll display
-                return CommandResult.SUCCESS, "SHOW_SCROLL_CONTENT"
+            # Find all scrolls in inventory
+            inventory = game_state.player.get_inventory()
+            scrolls = [item for item in inventory if item and "scroll" in item.lower()]
+            
+            if not scrolls:
+                return CommandResult.NOT_FOUND, "You don't have any scrolls to read."
+            elif len(scrolls) == 1:
+                # Only one scroll, read it
+                scroll_name = scrolls[0]
+                return self._read_specific_scroll(scroll_name)
             else:
-                return CommandResult.NOT_FOUND, "You don't have a scroll to read."
+                # Multiple scrolls - list them for the player to choose
+                scroll_list = ", ".join(scrolls)
+                return CommandResult.SUCCESS, f"You have multiple scrolls: {scroll_list}. Use 'READ [scroll name]' to read a specific one."
+        
+        # Check if noun matches a specific scroll name
+        inventory = game_state.player.get_inventory()
+        for item in inventory:
+            if item and noun.lower() in item.lower() and "scroll" in item.lower():
+                return self._read_specific_scroll(item)
         
         return CommandResult.INVALID, f"You can't read the {noun}."
+    
+    def _read_specific_scroll(self, scroll_name: str) -> Tuple[CommandResult, str]:
+        """Read a specific scroll and return appropriate content."""
+        if "worn" in scroll_name.lower():
+            # Return special marker to trigger full-screen scroll display
+            return CommandResult.SUCCESS, "SHOW_SCROLL_CONTENT"
+        elif "ancient" in scroll_name.lower():
+            return CommandResult.SUCCESS, "SHOW_ANCIENT_SCROLL_CONTENT"
+        elif "cathedral" in scroll_name.lower():
+            return CommandResult.SUCCESS, "SHOW_CATHEDRAL_SCROLL_CONTENT"
+        else:
+            # Generic scroll content
+            return CommandResult.SUCCESS, f"You read the {scroll_name}. The text speaks of ancient mysteries and forgotten lore, though much of it is too faded to decipher clearly."
     
     def _fill_command(self, noun: Optional[str], game_state) -> Tuple[CommandResult, str]:
         """Handle fill lantern commands."""
