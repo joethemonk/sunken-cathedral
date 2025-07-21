@@ -850,7 +850,8 @@ class Game:
             message=self.state.last_message,
             command_input=self.state.display.command_input if self.state.display.is_typing_command else "",
             difficulty_name=self.state.difficulty_manager.get_difficulty_name(),
-            room_items=current_room.items
+            room_items=current_room.items,
+            room_spirits=current_room.spirits
         )
     
     def _show_settings_menu(self) -> None:

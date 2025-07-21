@@ -157,7 +157,7 @@ class PygameDisplay:
         text_surface = self.font.render(text, True, color)
         self.screen.blit(text_surface, (x, y))
     
-    def render_map(self, room_map: List[str], player_pos: Tuple[int, int], room_items: dict = None) -> None:
+    def render_map(self, room_map: List[str], player_pos: Tuple[int, int], room_items: dict = None, room_spirits: dict = None) -> None:
         """
         Render the game map with the player position and dynamic items.
         
@@ -165,12 +165,15 @@ class PygameDisplay:
             room_map: List of strings representing the room layout
             player_pos: (row, col) position of the player
             room_items: Dictionary of {position: item_name} for dynamic items
+            room_spirits: Dictionary of {position: spirit_name} for dynamic spirits
         """
         # Clear map area
         pygame.draw.rect(self.screen, Color.BLACK, self.map_area)
         
         if room_items is None:
             room_items = {}
+        if room_spirits is None:
+            room_spirits = {}
         
         for row_idx, line in enumerate(room_map):
             if row_idx >= self.map_height:
@@ -193,6 +196,9 @@ class PygameDisplay:
                     else:
                         # Default to 'I' for unknown items
                         self.draw_text('I', col_idx, row_idx, Color.ITEMS)
+                # Check if there's a spirit at this position
+                elif (row_idx, col_idx) in room_spirits:
+                    self.draw_text('S', col_idx, row_idx, Color.SPIRITS)
                 else:
                     color = self.get_color_for_char(char)
                     self.draw_text(char, col_idx, row_idx, color)
@@ -297,7 +303,7 @@ class PygameDisplay:
     def full_render(self, room_map: List[str], player_pos: Tuple[int, int],
                    lantern_oil: float, geode: Optional[str], 
                    inventory: List[Optional[str]], message: str = "", command_input: str = "", 
-                   difficulty_name: str = "Hard", room_items: dict = None) -> None:
+                   difficulty_name: str = "Hard", room_items: dict = None, room_spirits: dict = None) -> None:
         """
         Perform a complete screen render.
         
@@ -310,12 +316,13 @@ class PygameDisplay:
             message: Current message to display
             command_input: Current command being typed
             room_items: Dictionary of {position: item_name} for dynamic items
+            room_spirits: Dictionary of {position: spirit_name} for dynamic spirits
         """
         # Clear entire screen
         self.screen.fill(Color.BLACK)
         
         # Render all components
-        self.render_map(room_map, player_pos, room_items)
+        self.render_map(room_map, player_pos, room_items, room_spirits)
         self.render_separator()
         self.render_status_panel(lantern_oil, geode, inventory, difficulty_name)
         self.render_message_area(message, command_input)
