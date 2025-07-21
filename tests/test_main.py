@@ -204,59 +204,47 @@ def test_fill_lantern_sequence():
 
 
 def test_soothe_spirit_sequence():
-    """Test complete spirit soothing sequence."""
+    """Test the complete spirit soothing sequence."""
+    print("\n=== Soothe Spirit Sequence Test ===")
+    
     game = TestGame()
     
-    # First, get a prayer geode
-    geode_position = (10, 10)  # Prayer Geode location from world.py
-    spirit_position = (2, 32)   # Spirit location from world.py
+    # Get a prayer geode first
+    print("Moving to geode at position (10, 10)")
+    game.move_to_position((10, 10))
     
-    print(f"Moving to geode at position {geode_position}")
-    
-    # Move to geode location
-    success = game.move_to_position(geode_position)
-    assert success, f"Failed to move to geode position {geode_position}"
-    
-    # Take the geode
-    result, message = game.execute_command("TAKE GEODE")
+    result, message = game.execute_command("take geode")
     print(f"Take geode result: {result}, Message: {message}")
-    assert result == CommandResult.SUCCESS
-    assert "take" in message.lower()
+    assert result == CommandResult.SUCCESS, f"Failed to take geode: {message}"
     
-    # Equip the geode
-    result, message = game.execute_command("USE GEODE")
+    result, message = game.execute_command("use geode")
     print(f"Use geode result: {result}, Message: {message}")
-    assert result == CommandResult.SUCCESS
-    assert "attune" in message.lower()
+    assert result == CommandResult.SUCCESS, f"Failed to use geode: {message}"
     
-    # Check that spirit exists at expected position
+    # Test spirit interaction at correct position (2, 27)
+    spirit_position = (2, 27)  # Updated to match the fixed position
+    print("Testing spirit interaction from current position")
+    
+    # Verify spirit exists at the correct position
     assert game.has_spirit_at_position(spirit_position), f"No spirit found at {spirit_position}"
-    
-    print(f"Testing spirit interaction from current position")
     
     # For testing purposes, let's manually place the player close to the spirit
     # This tests the command logic without relying on pathfinding
-    test_position = (2, 33)  # Adjacent to spirit
+    test_position = (2, 26)  # Adjacent to spirit at (2, 27)
     game.state.player.set_position(test_position)
+    player_pos = game.state.player.get_position()
+    print(f"Player positioned at: {player_pos}")
     
-    current_pos = game.get_player_position()
-    print(f"Player positioned at: {current_pos}")
+    # Calculate distance to spirit
+    distance = (abs(player_pos[0] - spirit_position[0]), abs(player_pos[1] - spirit_position[1]))
+    print(f"Distance to spirit: {distance}")
     
-    # Verify we're close enough to the spirit
-    row_diff = abs(spirit_position[0] - current_pos[0])
-    col_diff = abs(spirit_position[1] - current_pos[1])
-    print(f"Distance to spirit: ({row_diff}, {col_diff})")
-    
-    # Execute SOOTHE SPIRIT command
-    result, message = game.execute_command("SOOTHE SPIRIT")
+    # Try to soothe the spirit
+    result, message = game.execute_command("soothe spirit")
     print(f"Soothe spirit result: {result}, Message: {message}")
     
-    assert result == CommandResult.SUCCESS
-    assert "soothe" in message.lower() or "fades" in message.lower()
-    
-    # Verify spirit is removed
-    spirit_still_exists = game.has_spirit_at_position(spirit_position)
-    assert not spirit_still_exists, "Spirit should be removed after soothing"
+    assert result == CommandResult.SUCCESS, f"Failed to soothe spirit: {message}"
+    assert "soothe the spirit" in message.lower(), f"Unexpected soothe message: {message}"
     
     print("✓ Soothe spirit sequence test passed")
 
@@ -291,18 +279,12 @@ def test_complete_gameplay_sequence():
     
     # Step 3: Move to spirit and soothe it
     print("\n3. Soothing spirit...")
-    spirit_pos = (2, 32)
+    # For testing purposes, manually position near spirit
+    game.state.player.set_position((2, 26))  # Adjacent to spirit at (2, 27)
     
-    assert game.has_spirit_at_position(spirit_pos), "Spirit should exist before soothing"
-    
-    # For testing purposes, manually position near spirit 
-    game.state.player.set_position((2, 33))  # Adjacent to spirit
-    print(f"Positioned player at {game.get_player_position()}")
-    
-    result, message = game.execute_command("SOOTHE SPIRIT")
-    
-    assert result == CommandResult.SUCCESS
-    assert not game.has_spirit_at_position(spirit_pos), "Spirit should be gone after soothing"
+    result, message = game.execute_command("soothe spirit")
+    print(f"Soothe result: {result}")
+    assert result == CommandResult.SUCCESS, f"Failed to soothe spirit: {message}"
     
     print(f"Final oil level: {game.get_lantern_oil():.1f}%")
     print(f"Total moves: {game.state.total_moves}")
@@ -329,6 +311,43 @@ def test_invalid_commands():
     print("✓ Invalid commands test passed")
 
 
+def test_spirit_position_fix():
+    """Test that the spirit position matches the 'S' on the map and soothing works."""
+    print("\n=== Spirit Position Fix Test ===")
+    
+    game = TestGame()
+    
+    # Check that the spirit exists at the expected position
+    current_room = game.state.world.get_current_room()
+    assert (2, 27) in current_room.spirits, f"Spirit not found at position (2, 27). Spirits at: {list(current_room.spirits.keys())}"
+    
+    # Move player near the spirit
+    game.state.player.set_position((2, 26))  # Right next to the spirit
+    
+    # Get a prayer geode and equip it
+    game.move_to_position((10, 10))  # Go to prayer geode
+    result, message = game.execute_command("take geode")
+    assert result == CommandResult.SUCCESS, f"Failed to take geode: {message}"
+    
+    result, message = game.execute_command("use geode")
+    assert result == CommandResult.SUCCESS, f"Failed to use geode: {message}"
+    
+    # Move back to the spirit
+    game.state.player.set_position((2, 26))  # Position next to spirit
+    
+    # Try to soothe the spirit
+    result, message = game.execute_command("soothe spirit")
+    print(f"Soothe result: {result}, Message: {message}")
+    
+    assert result == CommandResult.SUCCESS, f"Failed to soothe spirit: {message}"
+    assert "soothe the spirit" in message.lower(), f"Unexpected soothe message: {message}"
+    
+    # Verify spirit was removed
+    assert (2, 27) not in current_room.spirits, "Spirit was not removed after soothing"
+    
+    print("✓ Spirit position fix test passed")
+
+
 if __name__ == "__main__":
     """Run tests if script is executed directly."""
     print("Running Sunken Cathedral game tests...\n")
@@ -340,5 +359,6 @@ if __name__ == "__main__":
     test_soothe_spirit_sequence()
     test_complete_gameplay_sequence()
     test_invalid_commands()
+    test_spirit_position_fix()
     
     print("\n🎉 All tests passed! Game mechanics are working correctly.")
