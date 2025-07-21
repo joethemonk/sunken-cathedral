@@ -64,6 +64,10 @@ sunken_cathedral/
 - Branch naming: feature/description or fix/description
 - Commit message format: "type: description" (e.g., "feat: add parser system")
 - Types: feat, fix, docs, style, refactor, test, chore
+- **CRITICAL**: Keep commit messages SHORT and SIMPLE to avoid git hanging
+  - Use single line commit messages only: `git commit -m "short message"`
+  - Avoid multi-line commits or complex descriptions that cause git to hang
+  - If details needed, put them in PR description, not commit message
 
 ## Testing Requirements
 - Minimum 80% code coverage
