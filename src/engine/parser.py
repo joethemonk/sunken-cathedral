@@ -293,7 +293,35 @@ class Parser:
         if game_state.player.is_lantern_depleted():
             return CommandResult.FAILURE, "Your lantern has no oil to shine."
         
-        return CommandResult.SUCCESS, "Your lantern glows with sacred light."
+        # Check for nearby puzzle elements, like the sealed door rubble
+        current_room = game_state.world.get_current_room()
+        player_pos = game_state.player.get_position()
+        
+        # The sealed door is at row 4, column 13-14-15
+        rubble_positions = [(4, 13), (4, 14), (4, 15)]
+        is_near_rubble = False
+        for r_pos in rubble_positions:
+            row_diff = abs(r_pos[0] - player_pos[0])
+            col_diff = abs(r_pos[1] - player_pos[1])
+            if row_diff <= 2 and col_diff <= 2:  # Generous check for proximity
+                is_near_rubble = True
+                break
+        
+        if current_room and is_near_rubble:
+            # Check if the door is already open
+            if current_room.get_character_at(rubble_positions[0]) == ' ':
+                return CommandResult.SUCCESS, "The way north is already open."
+            
+            # Open the passage by replacing rubble with empty space
+            for r_pos in rubble_positions:
+                current_room.modify_map_tile(r_pos, ' ')
+            
+            # Create an exit to the next room
+            current_room.add_exit(Direction.NORTH, "north_hall", (1, 7))
+            
+            return CommandResult.SUCCESS, "You shine your lantern at the rubble. The ancient seal dissolves with a soft hiss, revealing a dark passage to the north."
+        
+        return CommandResult.SUCCESS, "Your lantern glows with sacred light, pushing back the shadows."
     
     def _soothe_command(self, noun: Optional[str], game_state) -> Tuple[CommandResult, str]:
         """Handle soothe spirit commands."""

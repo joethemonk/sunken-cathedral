@@ -156,6 +156,10 @@ class Player:
         
         # Movement successful
         self.state.position = new_position
+        
+        # Check for room transition after moving
+        current_room.check_for_room_transition(self, world)
+        
         return True
     
     def get_inventory(self) -> List[Optional[str]]:

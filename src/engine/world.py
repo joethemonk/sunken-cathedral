@@ -76,8 +76,8 @@ class Room:
         
         for row_idx, line in enumerate(self.room_map):
             for col_idx, char in enumerate(line):
-                # Check if position is walkable (not a wall or deep water without light)
-                if char not in ['▓', '█']:  # Walls and rubble block movement
+                # Check if position is walkable (not a wall or rubble)
+                if char not in ['▓', '█', '▒']:  # Walls and rubble block movement
                     self.walkable_positions.add((row_idx, col_idx))
     
     def is_walkable(self, position: Tuple[int, int]) -> bool:
@@ -119,6 +119,57 @@ class Room:
                  target_pos: Tuple[int, int], requirements: Optional[List[str]] = None) -> None:
         """Add an exit in the specified direction."""
         self.exits[direction] = RoomExit(direction, target_room, target_pos, requirements)
+
+    def modify_map_tile(self, position: Tuple[int, int], new_char: str) -> bool:
+        """
+        Modify a single character on the room map.
+        
+        Args:
+            position: (row, col) of the tile to change
+            new_char: The new character to place at the position
+            
+        Returns:
+            True if the modification was successful, False otherwise
+        """
+        row, col = position
+        if 0 <= row < len(self.room_map) and 0 <= col < len(self.room_map[row]):
+            # Modify the string by converting to a list of characters
+            row_list = list(self.room_map[row])
+            row_list[col] = new_char
+            self.room_map[row] = "".join(row_list)
+            
+            # Recalculate walkable positions since the map has changed
+            self._calculate_walkable_positions()
+            return True
+        return False
+
+    def check_for_room_transition(self, player, world) -> None:
+        """
+        Check if the player has moved to an exit and transition if necessary.
+        
+        Args:
+            player: The player object
+            world: The world object
+        """
+        player_pos = player.get_position()
+        
+        # Check if the player's new position is an exit
+        for direction, exit_info in self.exits.items():
+            # This is a bit simplistic; a real game might have exit positions
+            # For now, let's assume moving in the exit's direction from anywhere triggers it
+            # A better approach is to define exit zones or specific tiles.
+            
+            # Let's check if the player moved "through" a conceptual exit
+            # e.g., if exit is NORTH, did the player move to the top row?
+            if direction == Direction.NORTH and player_pos[0] == 0:
+                world.set_current_room(exit_info.target_room_id)
+                player.set_position(exit_info.target_position)
+                return
+            elif direction == Direction.SOUTH and player_pos[0] == len(self.room_map) - 1:
+                world.set_current_room(exit_info.target_room_id)
+                player.set_position(exit_info.target_position)
+                return
+            # Add EAST and WEST checks if needed
 
 
 class World:
@@ -233,6 +284,40 @@ def create_test_world() -> World:
     ]
     
     world.add_room(entrance)
+    
+    # Create the North Hall
+    north_hall = Room(
+        room_id="north_hall",
+        name="The North Hall",
+        description="A long, narrow hall stretches into darkness. The air is colder here, and the sound of dripping water is more pronounced."
+    )
+    
+    north_hall_map = [
+        "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓",
+        "▓                                           ▓",
+        "▓                                           ▓",
+        "▓                                           ▓",
+        "▓                                           ▓",
+        "▓                                           ▓",
+        "▓                                           ▓",
+        "▓                                           ▓",
+        "▓                                           ▓",
+        "▓                                           ▓",
+        "▓                                           ▓",
+        "▓                                           ▓",
+        "▓                                           ▓",
+        "▓                                           ▓",
+        "▓                                           ▓",
+        "▓                                           ▓",
+        "▓▓▓▓▓▓▓▓▓       S       ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓",
+        "▓≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈▓",
+        "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓"
+    ]
+    north_hall.set_map(north_hall_map)
+    north_hall.add_exit(Direction.SOUTH, "entrance", (5, 14)) # Exit back to entrance
+    
+    world.add_room(north_hall)
+    
     world.set_current_room("entrance")
     
     return world 
