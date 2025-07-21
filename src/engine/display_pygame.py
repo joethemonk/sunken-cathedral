@@ -36,7 +36,7 @@ class PygameDisplay:
     Maintains the split-screen layout: game map on left, status panel on right.
     """
     
-    def __init__(self, map_width: int = 43, map_height: int = 18, status_width: int = 25):
+    def __init__(self, map_width: int = 45, map_height: int = 18, status_width: int = 25):
         """
         Initialize the pygame display system.
         
