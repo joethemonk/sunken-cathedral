@@ -215,8 +215,8 @@ def create_test_world() -> World:
     entrance.add_item((8, 35), "Ancient Scroll")
     entrance.add_item((14, 8), "Cathedral Research Scroll")
     
-    # Spirit (S) at position (2, 27) - fixed to match actual map position
-    entrance.spirits[(2, 27)] = "Weeping Sorrow"
+    # Spirit (S) at position (2, 38) - correctly positioned to match actual map location
+    entrance.spirits[(2, 38)] = "Weeping Sorrow"
     
     # Font (F) at position (13, 36) - Oil source
     entrance.fonts[(13, 36)] = "Ancient Font"
