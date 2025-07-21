@@ -157,16 +157,20 @@ class PygameDisplay:
         text_surface = self.font.render(text, True, color)
         self.screen.blit(text_surface, (x, y))
     
-    def render_map(self, room_map: List[str], player_pos: Tuple[int, int]) -> None:
+    def render_map(self, room_map: List[str], player_pos: Tuple[int, int], room_items: dict = None) -> None:
         """
-        Render the game map with the player position.
+        Render the game map with the player position and dynamic items.
         
         Args:
             room_map: List of strings representing the room layout
             player_pos: (row, col) position of the player
+            room_items: Dictionary of {position: item_name} for dynamic items
         """
         # Clear map area
         pygame.draw.rect(self.screen, Color.BLACK, self.map_area)
+        
+        if room_items is None:
+            room_items = {}
         
         for row_idx, line in enumerate(room_map):
             if row_idx >= self.map_height:
@@ -179,6 +183,16 @@ class PygameDisplay:
                 # Check if player is at this position
                 if (row_idx, col_idx) == player_pos:
                     self.draw_text('☺', col_idx, row_idx, Color.PLAYER)
+                # Check if there's an item at this position
+                elif (row_idx, col_idx) in room_items:
+                    item_name = room_items[(row_idx, col_idx)]
+                    if "geode" in item_name.lower():
+                        self.draw_text('G', col_idx, row_idx, Color.ITEMS)
+                    elif "scroll" in item_name.lower():
+                        self.draw_text('L', col_idx, row_idx, Color.ITEMS)
+                    else:
+                        # Default to 'I' for unknown items
+                        self.draw_text('I', col_idx, row_idx, Color.ITEMS)
                 else:
                     color = self.get_color_for_char(char)
                     self.draw_text(char, col_idx, row_idx, color)
@@ -282,7 +296,8 @@ class PygameDisplay:
     
     def full_render(self, room_map: List[str], player_pos: Tuple[int, int],
                    lantern_oil: float, geode: Optional[str], 
-                   inventory: List[Optional[str]], message: str = "", command_input: str = "", difficulty_name: str = "Hard") -> None:
+                   inventory: List[Optional[str]], message: str = "", command_input: str = "", 
+                   difficulty_name: str = "Hard", room_items: dict = None) -> None:
         """
         Perform a complete screen render.
         
@@ -294,12 +309,13 @@ class PygameDisplay:
             inventory: Player's inventory items
             message: Current message to display
             command_input: Current command being typed
+            room_items: Dictionary of {position: item_name} for dynamic items
         """
         # Clear entire screen
         self.screen.fill(Color.BLACK)
         
         # Render all components
-        self.render_map(room_map, player_pos)
+        self.render_map(room_map, player_pos, room_items)
         self.render_separator()
         self.render_status_panel(lantern_oil, geode, inventory, difficulty_name)
         self.render_message_area(message, command_input)

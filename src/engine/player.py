@@ -286,7 +286,7 @@ class Player:
     
     def pick_up_item(self, world: World) -> Optional[str]:
         """
-        Pick up an item at the current position.
+        Pick up an item at the current position or adjacent positions.
         
         Args:
             world: Current world state
@@ -298,12 +298,25 @@ class Player:
         if not current_room:
             return None
         
-        # Check if there's an item at current position
-        item_name = current_room.remove_item(self.state.position)
-        if item_name and self.add_item(item_name):
-            return item_name
-        elif item_name:
-            # Couldn't add to inventory, put it back
-            current_room.add_item(self.state.position, item_name)
+        # Check positions: current position first, then adjacent positions
+        positions_to_check = [self.state.position]
+        
+        # Add adjacent positions
+        current_row, current_col = self.state.position
+        for row_offset in [-1, 0, 1]:
+            for col_offset in [-1, 0, 1]:
+                if row_offset == 0 and col_offset == 0:
+                    continue  # Skip current position (already added)
+                adj_pos = (current_row + row_offset, current_col + col_offset)
+                positions_to_check.append(adj_pos)
+        
+        # Try to find an item at any of these positions
+        for pos in positions_to_check:
+            item_name = current_room.remove_item(pos)
+            if item_name and self.add_item(item_name):
+                return item_name
+            elif item_name:
+                # Couldn't add to inventory, put it back
+                current_room.add_item(pos, item_name)
         
         return None 

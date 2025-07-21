@@ -60,6 +60,11 @@ class Game:
             pygame.K_RIGHT: Direction.EAST,
         }
         
+        # Key repeat functionality for movement
+        self.keys_held = set()
+        self.last_move_time = 0
+        self.move_delay = 0.15  # Seconds between moves when holding key
+        
         # Game timing
         self.clock = pygame.time.Clock()
         self.last_update = time.time()
@@ -549,6 +554,14 @@ class Game:
                 
             elif event.type == pygame.KEYDOWN:
                 self._handle_keydown(event)
+                # Track movement keys being held
+                if event.key in self.direction_map:
+                    self.keys_held.add(event.key)
+                    
+            elif event.type == pygame.KEYUP:
+                # Track movement keys being released
+                if event.key in self.direction_map:
+                    self.keys_held.discard(event.key)
     
     def _handle_keydown(self, event) -> None:
         """Handle keydown events."""
@@ -601,6 +614,8 @@ class Game:
                 # Increment move counter and autosave
                 self.state.total_moves += 1
                 self._autosave()
+                # Set timing for key repeat
+                self.last_move_time = time.time()
             else:
                 self._set_message("You can't go that way.", 2.0)
         
@@ -783,6 +798,27 @@ class Game:
     
     def _update_game(self, current_time: float) -> None:
         """Update game state."""
+        # Handle continuous movement when keys are held
+        if not self.state.display.is_typing_command and self.keys_held:
+            if current_time - self.last_move_time >= self.move_delay:
+                # Move in the direction of the most recently pressed key
+                if self.keys_held:
+                    key = next(iter(self.keys_held))  # Get any held key
+                    direction = self.direction_map[key]
+                    
+                    if self.state.player.try_move(direction, self.state.world):
+                        # Movement successful - consume oil for movement
+                        if not self.state.player.consume_oil_for_action("move", self.state.difficulty_manager):
+                            self._handle_oil_depletion()
+                        # Increment move counter and autosave
+                        self.state.total_moves += 1
+                        self._autosave()
+                        self.last_move_time = current_time
+                    else:
+                        # Hit wall, show message but don't keep trying
+                        self.keys_held.clear()
+                        self._set_message("You can't go that way.", 2.0)
+        
         # Clear expired messages
         if self.state.message_timer > 0 and current_time > self.state.message_timer:
             self.state.last_message = ""
@@ -809,7 +845,8 @@ class Game:
             inventory=self.state.player.get_inventory(),
             message=self.state.last_message,
             command_input=self.state.display.command_input if self.state.display.is_typing_command else "",
-            difficulty_name=self.state.difficulty_manager.get_difficulty_name()
+            difficulty_name=self.state.difficulty_manager.get_difficulty_name(),
+            room_items=current_room.items
         )
     
     def _show_settings_menu(self) -> None:
